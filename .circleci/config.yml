@@ -15,6 +15,8 @@ jobs:
       # from https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_install_cli_standalone.htm
       # and https://developer.salesforce.com/media/salesforce-cli/manifest.json
       - DX_CLI_URL: https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
+      - TESTLEVEL: RunLocalTests
+      - DEPLOYDIR: src
     steps:
       - checkout
       - run:
@@ -49,6 +51,17 @@ jobs:
             sfdx force --help
             sfdx force:org:create -s -f ~/ci_app/config/project-scratch-def.json -a circle_build_$CIRCLE_BUILD_NUM --wait 4
             sfdx force:source:push -u circle_build_$CIRCLE_BUILD_NUM
+            
+      - run:
+          name: Authorize Target Deployment Org
+          command: |
+            #Authorize target org
+            sfdx force:auth:jwt:grant  --clientid $CONSUMER_KEY --jwtkeyfile assets/server.key --username $USER_NAME --setalias UAT
+      - run:
+          name: Deploy to Target Deployment Org
+          command: |
+            #Deploy to target deployment org and run unit tests. 
+            sfdx force:mdapi:deploy --wait 10 --deploydir $DEPLOYDIR --targetusername UAT --testlevel $TESTLEVEL
       - run:
           name: Run Apex Tests
           command: |
