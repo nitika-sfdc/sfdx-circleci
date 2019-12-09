@@ -57,7 +57,7 @@ jobs:
           name: Deploy to Target Deployment Org
           command: |
             #Deploy to target deployment org and run unit tests. 
-            sfdx force:mdapi:deploy --wait 10 --deploydir $DEPLOYDIR --targetusername UAT --testlevel $TESTLEVEL
+            sfdx force:mdapi:deploy --wait 10 --deploydir $DEPLOYDIR --targetusername $HUB_TARGET_USER --testlevel $TESTLEVEL
       - run:
           name: Run Apex Tests
           command: |
